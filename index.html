@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AX Native Playbook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Concept: a coach's playbook. Ink cover with a chalk play diagram, then a printed manual: contents page, scouting report, numbered plays with route diagrams, roster, game day map, drills. Single deliberate light theme with ink bands. */
+:root{
+  color-scheme:light;
+  --paper:#F2F3F1; --sheet:#FFFFFF; --ink:#121417; --ink-2:#474C54; --ink-3:#8A9099; --rule:#D8DBDD; --rule-2:#E6E8E9;
+  --field:#0E5C4A; --field-2:#1C7A63; --field-soft:#E2EDE9; --mark:#C9951A; --mark-soft:#F6EBCF;
+  --night:#101315; --night-2:#1A1E21; --chalk:#E9ECEA; --chalk-dim:#8E9693;
+  --disp:'Archivo','IBM Plex Sans KR',sans-serif;
+  --sans:'IBM Plex Sans KR','Pretendard Variable',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.65;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--night)}
+::selection{background:var(--field);color:#fff}
+a{color:inherit}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--mark);outline-offset:3px;border-radius:4px}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3{text-wrap:balance}
+.wrap{max-width:1160px;margin:0 auto;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
+.mono{font-family:var(--mono)}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+
+/* cover */
+.cover{background:var(--night);color:var(--chalk);position:relative;overflow:hidden}
+.cover .wrap{position:relative;z-index:1;padding-block:28px 56px}
+.cover-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(233,236,234,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(233,236,234,.045) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+.c-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid rgba(233,236,234,.14);padding-bottom:18px}
+.c-brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--chalk-dim)}
+.c-brand img{height:22px;width:auto;border-radius:3px;background:#fff;padding:2px 4px}
+.c-brand b{color:var(--chalk);font-weight:600}
+.c-cta{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--chalk);text-decoration:none;border:1px solid rgba(233,236,234,.3);padding:8px 14px;border-radius:999px}
+.c-cta:hover{background:var(--chalk);color:var(--night)}
+.c-main{display:grid;grid-template-columns:1.15fr 1fr;gap:40px;align-items:center;margin-top:52px}
+.c-kick{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--mark);text-transform:uppercase}
+.cover h1{font-family:var(--disp);font-stretch:72%;font-weight:850;font-size:clamp(56px,9vw,124px);line-height:.86;letter-spacing:-.01em;text-transform:uppercase;margin:18px 0 22px}
+.cover h1 span{display:block;color:transparent;-webkit-text-stroke:1.5px var(--chalk)}
+.c-sub{font-size:16px;color:var(--chalk-dim);max-width:460px}
+.c-sub b{color:var(--chalk);font-weight:600}
+.c-diagram{border:1px solid rgba(233,236,234,.16);border-radius:6px;background:rgba(255,255,255,.02);padding:14px}
+.c-diagram svg{width:100%;height:auto;display:block}
+.c-diagram .cap{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--chalk-dim);padding:4px 2px 0}
+.c-stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:48px;border-top:1px solid rgba(233,236,234,.14)}
+.c-stats div{padding:18px 18px 0 0}
+.c-stats div+div{padding-left:18px;border-left:1px solid rgba(233,236,234,.14)}
+.c-stats b{display:block;font-family:var(--disp);font-stretch:75%;font-weight:800;font-size:52px;line-height:1;font-variant-numeric:tabular-nums}
+.c-stats span{font-size:12.5px;color:var(--chalk-dim)}
+
+/* contents */
+.contents{background:var(--sheet);border-bottom:1px solid var(--rule)}
+.contents .wrap{padding-block:34px 30px;display:grid;grid-template-columns:220px 1fr;gap:28px}
+.contents h2{font-family:var(--disp);font-stretch:80%;font-weight:800;font-size:28px;text-transform:uppercase;letter-spacing:.01em;line-height:1}
+.contents p{font-size:13px;color:var(--ink-2);margin-top:8px}
+.toc{display:grid;grid-template-columns:repeat(2,1fr);column-gap:36px}
+.toc a{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:baseline;padding:9px 0;border-bottom:1px dotted var(--rule);text-decoration:none}
+.toc a:hover .t{color:var(--field)}
+.toc .n{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.toc .t{font-weight:600;font-size:14.5px}
+.toc .t small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--ink-3);margin-left:8px;letter-spacing:.06em;text-transform:uppercase}
+.toc .p{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--rule);border-radius:6px;overflow:hidden;margin-top:22px;grid-column:1 / -1}
+.quick a{display:flex;flex-direction:column;gap:2px;padding:14px 16px;text-decoration:none;border-left:1px solid var(--rule);background:var(--sheet);min-width:0}
+.quick a:first-child{border-left:none;background:var(--ink);color:#fff}
+.quick a:first-child .label{color:var(--mark)}
+.quick a:first-child .d{color:#B9BEC4}
+.quick a:hover{background:var(--field-soft)}
+.quick a:first-child:hover{background:var(--field)}
+.quick .t{font-weight:700;font-size:14.5px}
+.quick .d{font-size:12px;color:var(--ink-2)}
+
+/* rail */
+.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:rgba(242,243,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.rail .wrap{display:flex;gap:2px;overflow-x:auto;padding-block:8px;scrollbar-width:none}
+.rail a{flex:none;text-decoration:none;font-size:12.5px;font-weight:600;color:var(--ink-2);padding:6px 11px;border-radius:4px;white-space:nowrap}
+.rail a span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);margin-right:6px}
+.rail a.on{background:var(--ink);color:#fff}
+.rail a.on span{color:var(--mark)}
+
+/* section frame */
+.sec{padding-block:80px 0;scroll-margin-top:56px}
+.s-head{display:grid;grid-template-columns:120px 1fr auto;gap:12px 28px;align-items:end;padding-bottom:22px;border-bottom:2px solid var(--ink);margin-bottom:28px}
+.s-no{font-family:var(--disp);font-stretch:70%;font-weight:850;font-size:84px;line-height:.8;color:var(--ink)}
+.s-kick{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--field);font-weight:600;margin-bottom:6px}
+.s-title{font-size:clamp(24px,3vw,32px);font-weight:700;letter-spacing:-.02em;line-height:1.25}
+.s-desc{font-size:14.5px;color:var(--ink-2);margin-top:8px;max-width:620px}
+.s-link{font-family:var(--mono);font-size:12px;text-decoration:none;color:var(--ink);border:1px solid var(--ink);padding:9px 14px;border-radius:999px;white-space:nowrap}
+.s-link:hover{background:var(--ink);color:#fff}
+.box{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:22px;min-width:0}
+.box h3{font-size:16px;font-weight:700}
+.box .cs{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin:2px 0 18px;letter-spacing:.04em}
+
+/* scouting */
+.scout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end;height:220px;border-bottom:1px solid var(--ink);padding-bottom:0}
+.lst{display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%}
+.lcol{background:var(--rule-2);display:flex;align-items:flex-start;justify-content:center;padding-top:8px;transform-origin:bottom;animation:gy .9s cubic-bezier(.2,.8,.2,1) both}
+.lst.hi .lcol{background:var(--ink-2)}
+.lst.hi .lcol .v{color:#fff}
+.lcol .v{font-family:var(--disp);font-stretch:75%;font-weight:800;font-size:26px;line-height:1}
+.lcol .v small{font-family:var(--sans);font-size:11px;font-weight:500;margin-left:2px}
+.lnames{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px}
+.lnames div{font-size:12px;line-height:1.35}
+.lnames b{display:block;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-weight:500;letter-spacing:.08em}
+.note{margin-top:16px;padding-top:12px;border-top:1px dotted var(--rule);font-size:13px;color:var(--ink-2)}
+.note b{color:var(--ink)}
+.after{display:flex;flex-direction:column}
+.arow{display:grid;grid-template-columns:96px 1fr 64px;gap:14px;align-items:center;padding:13px 0;border-bottom:1px solid var(--rule-2)}
+.arow:last-child{border-bottom:none}
+.arow b{font-family:var(--disp);font-stretch:75%;font-weight:800;font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
+.arow b small{font-family:var(--sans);font-size:12px;font-weight:500;color:var(--ink-3);margin-left:2px}
+.arow span{font-size:13.5px;font-weight:600}
+.arow span i{display:block;font-style:normal;font-weight:400;font-size:12px;color:var(--ink-2)}
+.arow em{font-style:normal;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-align:center;padding:3px 0;border-radius:3px;background:var(--field-soft);color:var(--field)}
+.arow.top b{color:var(--field)}
+.arow.top em{background:var(--field);color:#fff}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.hb{display:grid;grid-template-columns:150px 1fr 48px;gap:12px;align-items:center;margin-bottom:11px}
+.hb:last-child{margin-bottom:0}
+.hb .l{font-size:13px;font-weight:500}
+.hb .t{height:10px;background:var(--rule-2)}
+.hb .f{height:100%;background:var(--ink-3);transform-origin:left;animation:gx 1s cubic-bezier(.2,.8,.2,1) both}
+.hb.p .f{background:var(--field)}
+.hb .v{font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink-2)}
+.hb.p .v{color:var(--field);font-weight:600}
+@keyframes gy{from{transform:scaleY(.1)}to{transform:scaleY(1)}}
+@keyframes gx{from{transform:scaleX(.05)}to{transform:scaleX(1)}}
+
+/* drive chart (curriculum) */
+.drive{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dday{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.dday-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:16px 20px;background:var(--ink);color:#fff}
+.dday-h h3{font-size:17px;font-weight:700}
+.dday-h span{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--mark)}
+.dday ol{list-style:none;margin:0;padding:6px 20px 8px;counter-reset:s}
+.dday li{display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px dotted var(--rule)}
+.dday li:last-child{border-bottom:none}
+.dday li .n{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.dday li b{display:block;font-size:14px;font-weight:600}
+.dday li span{font-size:12.5px;color:var(--ink-2)}
+.dday li a{font-family:var(--mono);font-size:11px;text-decoration:none;color:var(--field);border:1px solid var(--field);padding:3px 9px;border-radius:999px;white-space:nowrap}
+.dday li a:hover{background:var(--field);color:#fff}
+.dday .f{margin-top:auto;padding:12px 20px;border-top:1px solid var(--rule);font-size:13px;background:var(--field-soft)}
+.dday .f b{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--field);margin-right:8px}
+
+/* plays */
+.plays{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.play{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;display:flex;flex-direction:column;min-width:0}
+.play-top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.play-top .no{font-family:var(--disp);font-stretch:75%;font-weight:800;font-size:22px;line-height:1}
+.play-top .st{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+.play-dg{background:var(--night);padding:10px 14px}
+.play-dg svg{width:100%;height:auto;display:block}
+.play-bd{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.play-bd h3{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.play-bd .call{font-size:13px;color:var(--ink-2)}
+.play-bd .when{font-size:12.5px;padding:8px 10px;background:var(--paper);border-left:2px solid var(--field)}
+.play-bd .when b{font-family:var(--mono);font-size:10.5px;color:var(--field);letter-spacing:.08em;margin-right:6px}
+.les{margin-top:auto;padding-top:6px;display:flex;flex-direction:column}
+.les a{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:7px 0;border-top:1px dotted var(--rule);text-decoration:none;font-size:13px;font-weight:500}
+.les a:hover{color:var(--field)}
+.les a i{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+.les a.used::before{content:"";display:none}
+.les a.used span::after{content:" 수업";font-family:var(--mono);font-size:10px;color:var(--mark);font-weight:600}
+.toolbox{margin-top:16px;display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.tools a{font-size:12.5px;text-decoration:none;padding:7px 12px;border:1px solid var(--rule);background:var(--sheet);border-radius:999px}
+.tools a:hover{border-color:var(--ink)}
+.tools a b{font-weight:600}
+
+/* highlight reel */
+.tabs{display:flex;gap:0;border:1px solid var(--ink);border-radius:999px;width:fit-content;overflow:hidden;margin-bottom:14px;flex-wrap:wrap}
+.tabs button{font-family:var(--sans);font-weight:600;font-size:13px;border:none;background:transparent;color:var(--ink);padding:8px 16px;cursor:pointer}
+.tabs button+button{border-left:1px solid var(--ink)}
+.tabs button b{font-family:var(--mono);font-weight:500;font-size:11px;margin-left:6px;color:var(--ink-3)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:#fff}
+.tabs button[aria-selected="true"] b{color:var(--mark)}
+.reel-note{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin-bottom:14px}
+.reel-note a{font-family:var(--mono);font-size:11.5px;color:var(--field);text-decoration:none}
+.reel{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.reel a{display:flex;flex-direction:column;text-decoration:none;background:var(--sheet);border:1px solid var(--rule);border-radius:4px;overflow:hidden;min-width:0;transition:transform .15s,border-color .15s}
+.reel a:hover{transform:translateY(-2px);border-color:var(--ink)}
+.reel .th{aspect-ratio:16/10;max-width:100%;background:var(--night);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.reel .th svg{width:100%;height:100%;position:absolute;inset:0}
+.reel .th .k{position:absolute;left:8px;top:6px;font-family:var(--mono);font-size:10px;color:var(--chalk-dim);letter-spacing:.08em}
+.reel .bd{padding:8px 10px 10px}
+.reel .t{font-size:12.5px;font-weight:600;line-height:1.35;display:block;overflow-wrap:anywhere}
+
+/* roster */
+.roster{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.rrow{display:grid;grid-template-columns:44px 1.05fr 2fr 120px 80px;gap:16px;align-items:center;padding:12px 18px;border-top:1px solid var(--rule-2)}
+.rrow.h{border-top:none;background:var(--ink);color:#fff}
+.rrow.h span{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#B9BEC4}
+.rrow.grp{background:var(--paper);padding:8px 18px}
+.rrow.grp span{grid-column:1 / -1;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--field);font-weight:600;text-transform:uppercase}
+.rrow .no{font-family:var(--disp);font-stretch:75%;font-weight:800;font-size:20px}
+.rrow .nm{font-weight:700;font-size:14px;min-width:0}
+.rrow .nm small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;color:var(--ink-3);overflow-wrap:anywhere}
+.rrow .ds{font-size:13px;color:var(--ink-2);min-width:0}
+.rrow .gd{font-family:var(--mono);font-size:10.5px;color:var(--ink);background:var(--mark-soft);padding:3px 8px;border-radius:3px;width:fit-content;white-space:nowrap}
+.rrow .who{font-weight:600;font-size:13px;text-align:right}
+
+/* game day */
+.gd-steps{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule);border-radius:6px;overflow:hidden;margin-bottom:16px;background:var(--sheet)}
+.gd-steps div{padding:14px 16px;border-left:1px solid var(--rule);position:relative}
+.gd-steps div:first-child{border-left:none}
+.gd-steps i{font-style:normal;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink-3)}
+.gd-steps b{display:block;font-size:15px;margin-top:2px}
+.gd-steps span{font-size:12.5px;color:var(--ink-2)}
+.game{display:grid;grid-template-columns:1.55fr 1fr;gap:16px}
+.mapbox{background:var(--night);border-radius:6px;padding:14px;min-width:0}
+.mapbox svg{width:100%;height:auto;display:block}
+.mapbox .river{fill:none;stroke:#1F2B28;stroke-width:12;stroke-linecap:round;stroke-linejoin:round}
+.mapbox .river2{fill:none;stroke:#3A5A50;stroke-width:1.2;stroke-dasharray:3 6}
+.mapbox .rl{font-family:'IBM Plex Mono',monospace;font-size:10px;fill:#5D6B66;letter-spacing:.2em}
+.mapbox .gl{stroke:rgba(233,236,234,.05);stroke-width:1}
+.mapbox .num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:10px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.mapbox .lbl{font-family:'IBM Plex Sans KR',sans-serif;font-weight:600;font-size:12px;fill:#E9ECEA}
+.mapbox a:hover .dot{stroke:#fff;stroke-width:2}
+.mlegend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--chalk-dim);letter-spacing:.06em;padding:8px 4px 0}
+.mlegend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.mlegend .c::before{background:#E9ECEA}
+.mlegend .b::before{background:#1C7A63}
+.mlegend .a::before{background:transparent;border:2px solid #C9951A;width:6px;height:6px}
+.mlegend em{font-style:normal;margin-left:auto}
+.podium{display:flex;flex-direction:column;gap:10px}
+.pz{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:16px 18px;display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:start}
+.pz .rk{font-family:var(--disp);font-stretch:75%;font-weight:850;font-size:44px;line-height:.9}
+.pz.g{border:2px solid var(--mark)}
+.pz.g .rk{color:var(--mark)}
+.pz .tm{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.pz h3{font-size:15px;font-weight:700;line-height:1.4;margin-top:2px}
+.pz p{font-size:12.5px;color:var(--ink-2);margin-top:4px}
+.pz a{font-family:var(--mono);font-size:11.5px;color:var(--field);text-decoration:none;display:inline-block;margin-top:6px}
+.teams{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:16px;border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:var(--sheet)}
+.team{display:flex;flex-direction:column;gap:2px;padding:14px 16px;text-decoration:none;border-right:1px solid var(--rule-2);border-bottom:1px solid var(--rule-2);min-width:0}
+.team:hover{background:var(--field-soft)}
+.team .tn{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink-3)}
+.team .tn em{font-style:normal;color:var(--mark);font-weight:600}
+.team .pl{font-size:16px;font-weight:700}
+.team .sn{font-size:12.5px;font-weight:500}
+.team .sx{font-family:var(--mono);font-size:11px;color:var(--field)}
+.team .mb{font-size:11.5px;color:var(--ink-3);margin-top:4px}
+
+/* post-game */
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.pgc{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.pgc .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink-3)}
+.pgc h4{font-size:16px;font-weight:700;line-height:1.4}
+.pgc p{font-size:13px;color:var(--ink-2)}
+.pgc q{display:block;quotes:none;margin-top:auto;padding-top:10px;border-top:1px dotted var(--rule);font-size:13px;color:var(--ink)}
+.pgc.feat{grid-column:span 2;grid-row:span 1;background:var(--field);color:#fff;border-color:var(--field);display:grid;grid-template-columns:1fr 220px;gap:24px;align-items:center}
+.pgc.feat .k{color:#BFE0D5}
+.pgc.feat h4{font-size:24px;letter-spacing:-.02em}
+.pgc.feat p{color:#D6EBE4;font-size:14px}
+.pgc.feat q{border-top-color:rgba(255,255,255,.3);color:#fff;font-size:15px;font-weight:600}
+.pgc.feat .fl{display:flex;flex-direction:column;gap:10px}
+.pgc.feat svg{width:100%;height:auto}
+.pg2{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;margin-top:16px}
+.wish{display:flex;flex-wrap:wrap;gap:8px}
+.wish span{font-size:12.5px;padding:6px 12px;border:1px solid var(--rule);border-radius:999px;background:var(--paper)}
+
+/* drills */
+.drills{display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start}
+.score{background:var(--night);color:var(--chalk);border-radius:6px;padding:22px;position:sticky;top:64px}
+.score .label{color:var(--chalk-dim)}
+.score .big{font-family:var(--disp);font-stretch:72%;font-weight:850;font-size:80px;line-height:.9;margin-top:8px;font-variant-numeric:tabular-nums}
+.score .big small{font-size:28px;color:var(--chalk-dim)}
+.score .bar{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:16px}
+.score .bar i{height:8px;background:rgba(233,236,234,.12)}
+.score .bar i.on{background:var(--mark)}
+.score .lv{margin-top:16px;font-size:18px;font-weight:700}
+.score .lvs{display:flex;justify-content:space-between;margin-top:6px;font-family:var(--mono);font-size:10px;color:var(--chalk-dim)}
+.score .lvs b{color:var(--mark);font-weight:600}
+.dlist{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.drill{display:grid;grid-template-columns:auto 40px 1fr auto;gap:14px;align-items:center;padding:14px 18px;border-top:1px solid var(--rule-2);cursor:pointer}
+.drill:first-child{border-top:none}
+.drill input{appearance:none;width:20px;height:20px;border:1.5px solid var(--ink);border-radius:3px;margin:0;display:grid;place-content:center;cursor:pointer;background:var(--sheet)}
+.drill input::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px);opacity:0}
+.drill input:checked{background:var(--field);border-color:var(--field)}
+.drill input:checked::after{opacity:1}
+.drill .dn{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.drill b{display:block;font-size:14px;font-weight:600}
+.drill span{font-size:12.5px;color:var(--ink-2)}
+.drill input:checked ~ div b{text-decoration:line-through;color:var(--ink-3)}
+.drill a{font-family:var(--mono);font-size:11px;text-decoration:none;color:var(--field);white-space:nowrap}
+
+/* next season */
+.next{margin-top:96px;background:var(--night);color:var(--chalk)}
+.next .wrap{padding-block:60px 56px;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:end}
+.next h2{font-family:var(--disp);font-stretch:72%;font-weight:850;font-size:clamp(44px,6vw,80px);line-height:.88;text-transform:uppercase}
+.next h2 span{display:block;color:transparent;-webkit-text-stroke:1.5px var(--chalk)}
+.next p{color:var(--chalk-dim);margin-top:16px;max-width:460px}
+.nx{border:1px solid rgba(233,236,234,.2);border-radius:6px;padding:20px}
+.nx .label{color:var(--mark)}
+.nx h3{font-size:18px;font-weight:700;margin-top:6px;color:#fff}
+.nx p{font-size:13.5px;margin-top:6px}
+.nx .m{font-family:var(--mono);font-size:11px;color:var(--chalk-dim);margin-top:12px}
+.foot{background:var(--night);color:var(--chalk-dim);border-top:1px solid rgba(233,236,234,.1)}
+.foot .wrap{padding-block:18px;font-family:var(--mono);font-size:11px;letter-spacing:.04em}
+
+
+
+.c-diagram{border:1px solid rgba(233,236,234,.18);border-radius:8px;overflow:hidden;padding:0;background:#0A3F33;box-shadow:0 30px 60px rgba(0,0,0,.45);max-width:440px;justify-self:end;width:100%}
+.c-diagram svg{width:100%;height:auto;display:block}
+.pc-top,.pc-bot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 14px;background:#101315;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--chalk-dim)}
+.pc-top b{color:var(--mark);font-weight:600;margin-right:6px}
+.pc-bot{justify-content:flex-start;gap:16px;letter-spacing:.04em}
+.pc-bot span{display:inline-flex;align-items:center;gap:6px}
+.pc-bot i{font-style:normal;display:inline-block}
+.pc-bot .x{color:var(--mark);font-weight:700;font-size:13px;line-height:1}
+.pc-bot .o{width:9px;height:9px;border:1.5px solid var(--chalk);border-radius:50%}
+.pc-bot .r{width:16px;height:2px;background:var(--chalk)}
+.pc-bot .t{width:16px;height:0;border-top:1.5px dashed var(--mark)}
+.route{stroke-dasharray:700;stroke-dashoffset:0;animation:draw 1.4s cubic-bezier(.3,.7,.2,1) both}
+@keyframes draw{from{stroke-dashoffset:700}to{stroke-dashoffset:0}}
+@media (max-width:760px){.c-diagram{justify-self:stretch;max-width:none}}
+@media (prefers-reduced-motion: reduce){.route{animation:none}}
+
+.bk-stage{position:relative;display:flex;justify-content:center;align-items:center;padding:20px 0 34px;perspective:1600px}
+.bk{position:relative;width:min(300px,72vw);aspect-ratio:3/4.15;transform:rotateY(-22deg) rotateX(6deg) rotateZ(1deg);transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.bk-stage:hover .bk{transform:rotateY(-12deg) rotateX(4deg)}
+.bk-cover{position:absolute;inset:0;border-radius:3px 7px 7px 3px;background:
+  linear-gradient(90deg,rgba(0,0,0,.35) 0,rgba(0,0,0,.08) 3.2%,rgba(255,255,255,.07) 4.2%,rgba(0,0,0,0) 6%),
+  repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px),
+  repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 1px,transparent 1px 4px),
+  linear-gradient(160deg,#16705C 0%,#0E5C4A 45%,#09412F 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),inset -8px 0 18px rgba(0,0,0,.18);padding:22px 20px 20px 30px}
+.bk-frame{height:100%;border:1px solid rgba(232,196,110,.55);outline:1px solid rgba(232,196,110,.25);outline-offset:3px;display:flex;flex-direction:column;align-items:center;text-align:center;padding:16px 12px;color:#E8C46E}
+.bk-meta{width:100%;display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;letter-spacing:.18em;opacity:.85}
+.bk-mark{width:38px;height:38px;margin-top:22px;opacity:.9}
+.bk-mark svg{width:100%;height:100%}
+.bk-title{margin-top:auto;font-family:var(--disp);font-stretch:70%;font-weight:850;font-size:clamp(28px,4.4vw,40px);line-height:.92;letter-spacing:.02em;text-transform:uppercase;color:#F0D488;text-shadow:0 1px 0 rgba(0,0,0,.35),0 0 1px rgba(255,236,180,.4)}
+.bk-title span{display:block;font-size:.38em;letter-spacing:.4em;margin-bottom:8px;font-weight:600}
+.bk-title em{display:block;font-style:normal;color:transparent;-webkit-text-stroke:1px #E8C46E;margin-top:4px}
+.bk-rule{width:46px;height:1px;background:#E8C46E;margin:18px 0 12px;opacity:.7}
+.bk-sub{font-family:var(--mono);font-size:10px;letter-spacing:.06em;opacity:.9}
+.bk-foot{margin-top:auto;display:flex;flex-direction:column;gap:3px;font-size:9.5px;letter-spacing:.06em;opacity:.8}
+.bk-foot span:last-child{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em}
+.bk-pages{position:absolute;top:5px;bottom:5px;right:-11px;width:14px;border-radius:0 4px 4px 0;background:repeating-linear-gradient(90deg,#F4F2EC 0 1px,#D9D6CE 1px 2px);transform:translateZ(-4px);box-shadow:2px 0 4px rgba(0,0,0,.3)}
+.bk-tabs{position:absolute;right:-24px;top:16%;display:flex;flex-direction:column;gap:6px;transform:translateZ(-2px)}
+.bk-tabs i{font-style:normal;width:22px;height:30px;border-radius:0 4px 4px 0;font-family:var(--mono);font-size:8.5px;font-weight:600;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;color:#101315;background:#E9ECEA;box-shadow:1px 1px 2px rgba(0,0,0,.35)}
+.bk-tabs i:nth-child(odd){background:#C9951A}
+.bk-tabs i:nth-child(3){background:#9FC9BC}
+.bk-ribbon{position:absolute;bottom:-26px;left:62%;width:11px;height:44px;background:linear-gradient(90deg,#A8780E,#C9951A 50%,#A8780E);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);transform:translateZ(-1px)}
+.bk-shadow{position:absolute;bottom:14px;left:50%;width:min(320px,76vw);height:28px;transform:translateX(-46%);background:radial-gradient(ellipse at center,rgba(0,0,0,.55),transparent 70%);filter:blur(4px);z-index:-1}
+@media (prefers-reduced-motion: reduce){.bk{transition:none}}
+
+.fc-stage{position:relative;justify-self:end;width:min(320px,78vw);aspect-ratio:3/4.1;margin:10px 18px 18px 0}
+.fc-back{position:absolute;inset:0;transform:translate(14px,14px);background:#0E5C4A;border-radius:2px}
+.fc{position:absolute;inset:0;background:#ECEDEA;color:#121417;border-radius:2px;padding:20px 22px 18px;display:flex;flex-direction:column;box-shadow:0 24px 50px rgba(0,0,0,.45)}
+.fc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:linear-gradient(90deg,rgba(0,0,0,.10),rgba(0,0,0,0))}
+.fc-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;letter-spacing:.18em;padding-bottom:10px;border-bottom:1px solid #121417}
+.fc-title{margin-top:18px;display:flex;flex-direction:column}
+.fc-the{font-family:var(--mono);font-size:11px;letter-spacing:.06em;margin-bottom:6px}
+.fc-title b{font-family:var(--disp);font-stretch:62%;font-weight:900;font-size:clamp(54px,6.4vw,78px);line-height:.82;letter-spacing:-.005em;white-space:nowrap}
+.fc-mid{display:flex;align-items:flex-end;gap:12px;margin-top:16px}
+.fc-blk{width:44px;height:44px;background:#0E5C4A;display:block}
+.fc-vol{font-family:var(--mono);font-size:10px;line-height:1.5;letter-spacing:.08em}
+.fc-list{list-style:none;margin:auto 0 0;padding:12px 0 0;border-top:1px solid #121417;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px}
+.fc-list li{font-size:10.5px;font-weight:600;display:flex;gap:6px;white-space:nowrap}
+.fc-list i{font-style:normal;font-family:var(--mono);font-weight:500;color:#0E5C4A}
+.fc-foot{display:flex;justify-content:space-between;margin-top:12px;padding-top:8px;border-top:1px solid #C9CCCB;font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:#474C54}
+@media (max-width:760px){.fc-stage{justify-self:center;margin:6px 14px 20px 0}}
+
+.ex-stage{position:relative;justify-self:end;width:min(500px,100%);margin:8px 14px 14px 0}
+.ex-back{position:absolute;inset:0;transform:translate(10px,10px);background:#D9DCDA;border-radius:2px}
+.ex-back::after{content:"";position:absolute;inset:0;transform:translate(10px,10px);background:#B9BEBC;border-radius:2px;z-index:-1}
+.ex{position:relative;margin:0;background:#FFFFFF;color:#121417;border-radius:2px;padding:20px 22px 14px;box-shadow:0 30px 60px rgba(0,0,0,.5)}
+.ex-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.14em;padding-bottom:10px;border-bottom:2px solid #121417}
+.ex-top span:first-child{color:#0E5C4A;font-weight:600}
+.ex-top span:last-child{color:#8A9099}
+.ex-title{font-size:16px;font-weight:700;line-height:1.4;letter-spacing:-.01em;margin-top:14px}
+.ex-sub{font-size:11.5px;color:#8A9099;margin:4px 0 14px}
+.ex-svg{width:100%;height:auto;display:block}
+.ex-foot{display:flex;justify-content:space-between;gap:10px;margin-top:12px;padding-top:8px;border-top:1px solid #D8DBDD;font-family:var(--mono);font-size:9.5px;color:#8A9099}
+@media (max-width:760px){.ex-stage{justify-self:stretch;width:auto}}
+
+
+.hz{margin:0;justify-self:end;width:min(500px,100%);border:1px solid rgba(233,236,234,.16);border-radius:6px;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0));padding:20px 20px 14px}
+.hz-def{border-bottom:1px solid rgba(233,236,234,.14);padding-bottom:12px}
+.hz-word{font-family:var(--disp);font-stretch:85%;font-weight:600;font-style:italic;font-size:30px;line-height:1;color:var(--chalk);letter-spacing:-.01em}
+.hz-word span{font-family:var(--mono);font-style:normal;font-weight:400;font-size:12px;color:var(--chalk-dim);margin-left:8px;letter-spacing:.02em}
+.hz-def p{font-size:13px;color:var(--chalk-dim);margin-top:8px}
+.hz-def p i{font-family:var(--mono);color:var(--mark);margin-right:6px}
+.hz-svg{width:100%;height:auto;display:block;margin-top:6px}
+.hz .pw{stroke-dasharray:10 14;animation:flow 1.8s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-48}}
+.hz-lg{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 0 12px;font-family:var(--mono);font-size:10.5px;color:var(--chalk-dim)}
+.hz-lg i{font-style:normal;color:var(--chalk);margin-right:5px}
+.hz-lg .on,.hz-lg .on i{color:#2E9A7E}
+.hz-note{font-size:13px;color:var(--chalk-dim);padding:6px 0 12px;line-height:1.6}
+.hz-cap{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(233,236,234,.14);padding-top:10px;margin-top:4px}
+.hz-cap b{font-size:15px;font-weight:700;color:var(--chalk)}
+.hz-cap span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--chalk-dim)}
+@media (max-width:760px){.hz{justify-self:stretch;width:auto}}
+@media (prefers-reduced-motion: reduce){.hz .pw{animation:none;stroke-dasharray:none}}
+
+.win3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.wc{background:#222326;color:#fff;border-radius:16px;padding:24px 22px 20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.wc .wr{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.wc .wr i{font-style:normal;color:#E0306E}
+.wc .wt{font-size:12.5px;color:#9A9DA3}
+.wc h3{font-size:17px;font-weight:700;line-height:1.45;margin-top:6px}
+.wc p{font-size:13.5px;color:#C9CCD1;line-height:1.7}
+.wc a{margin-top:auto;padding-top:8px;font-size:13px;font-weight:600;color:#fff;text-decoration:none}
+.wc a:hover{text-decoration:underline}
+.tlist{margin-top:28px;border-top:2px solid var(--ink)}
+.tr{display:grid;grid-template-columns:44px 1fr 1.2fr 1.2fr 56px;gap:16px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--rule);text-decoration:none;font-size:14px}
+a.tr:hover{background:var(--sheet)}
+.tr.th{font-size:12px;color:var(--ink-3);font-weight:500;padding-block:10px}
+.tr .tn{font-weight:700;color:var(--ink-3)}
+.tr b{font-weight:700}
+.tr small{display:block;font-size:12px;color:var(--ink-3);margin-top:2px}
+.tr .tx{color:var(--ink-2);font-size:13.5px}
+.tr .tg{font-size:12.5px;color:var(--ink-3);text-align:right}
+a.tr:hover .tg{color:var(--ink)}
+@media (max-width:760px){.win3{grid-template-columns:1fr}.tr{grid-template-columns:30px 1fr 50px}.tr .ts,.tr .tx{grid-column:2}.tr.th span:nth-child(3),.tr.th span:nth-child(4){display:none}.tr .tg{grid-row:1;grid-column:3}}
+.nx a.apply{display:inline-flex;margin-top:16px;background:var(--chalk);color:var(--night);font-weight:700;font-size:14px;padding:11px 18px;border-radius:999px;text-decoration:none}
+.nx a.apply:hover{background:var(--mark)}
+/* v5 graphics refresh */
+.dist{margin-top:6px}
+.dist-br{position:relative;height:30px;margin-bottom:6px}
+.dist-br div{position:absolute;bottom:0;border:1px solid var(--field);border-bottom:none;height:10px}
+.dist-br span{position:absolute;bottom:14px;font-family:var(--mono);font-size:11px;color:var(--field);font-weight:600;white-space:nowrap;transform:translateX(-50%)}
+.dist-bar{display:flex;height:56px;gap:2px}
+.dist-bar div{display:flex;align-items:flex-end;padding:8px 10px;font-family:var(--disp);font-stretch:75%;font-weight:800;font-size:22px;line-height:1;color:#fff;min-width:0;transform-origin:left;animation:gx .9s cubic-bezier(.2,.8,.2,1) both}
+.dist-bar div small{font-family:var(--sans);font-size:11px;font-weight:500;margin-left:2px;opacity:.85}
+.dist-axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-top:6px}
+.dist-lg{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px 18px}
+.dist-lg div{display:grid;grid-template-columns:12px 52px 1fr auto;gap:8px;align-items:center;font-size:12.5px}
+.dist-lg i{width:12px;height:12px;display:block}
+.dist-lg b{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-weight:500}
+.dist-lg em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+.hb .t{height:6px;background:var(--rule-2);border-radius:3px}
+.hb .f{border-radius:3px}
+.play-dg{background:var(--paper);border-bottom:1px solid var(--rule);padding:14px 16px;background-image:radial-gradient(var(--rule) 1px,transparent 1px);background-size:14px 14px}
+.reel{grid-template-columns:repeat(5,1fr)}
+.reel a.gt{display:flex;flex-direction:column;justify-content:space-between;gap:14px;min-height:122px;padding:14px 14px 12px;background:var(--sheet);border:1px solid var(--rule);border-top:3px solid var(--acc);border-radius:4px;text-decoration:none;transition:transform .15s,box-shadow .15s}
+.reel a.gt:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(18,20,23,.08)}
+.gt .gk{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink-3)}
+.gt .gk b{font-family:var(--disp);font-stretch:75%;font-weight:800;font-size:22px;letter-spacing:0;color:var(--acc);line-height:.9}
+.gt .gtt{font-size:15px;font-weight:700;line-height:1.35;letter-spacing:-.01em;overflow-wrap:anywhere}
+.gt .go{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+.gt:hover .go{color:var(--field)}
+@media (max-width:1000px){.reel{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:760px){.reel{grid-template-columns:1fr 1fr}.dist-lg{grid-template-columns:1fr}}
+@media (max-width:1000px){
+  .plays{grid-template-columns:1fr 1fr}
+  .reel{grid-template-columns:repeat(4,1fr)}
+  .rrow{grid-template-columns:36px 1fr 70px}
+  .rrow .ds{grid-column:2 / -1;grid-row:2}
+  .rrow .gd{grid-column:2;grid-row:3}
+  .rrow.h span:nth-child(3),.rrow.h span:nth-child(4){display:none}
+  .teams{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:760px){
+  .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .c-main,.contents .wrap,.scout,.vs,.drive,.game,.pg2,.drills,.next .wrap,.toolbox{grid-template-columns:1fr}
+  .c-stats{grid-template-columns:1fr 1fr}
+  .c-stats div:nth-child(3){padding-left:0;border-left:none}
+  .c-stats div:nth-child(n+3){margin-top:14px}
+  .toc{grid-template-columns:1fr}
+  .quick,.gd-steps{grid-template-columns:1fr 1fr}
+  .quick a:nth-child(3),.gd-steps div:nth-child(3){border-left:none}
+  .quick a:nth-child(n+3),.gd-steps div:nth-child(n+3){border-top:1px solid var(--rule)}
+  .s-head{grid-template-columns:1fr}
+  .s-no{font-size:60px}
+  .s-link{justify-self:start}
+  .plays,.pg{grid-template-columns:1fr}
+  .pgc.feat{grid-column:auto;grid-template-columns:1fr}
+  .pgc.feat svg{max-width:220px}
+  .reel{grid-template-columns:1fr 1fr}
+  .teams{grid-template-columns:1fr 1fr}
+  .hb{grid-template-columns:110px 1fr 40px}
+  .score{position:static}
+  .lnames div{font-size:11px}
+}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.lcol,.hb .f{animation:none}.reel a{transition:none}}
+</style>
+</head>
+<body>
+
+
+<header class="cover">
+  <div class="cover-grid" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="c-top">
+      <div class="c-brand"><img src="data:image/png;base64,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" alt="Kearney"><b>AX NATIVE ACADEMY</b></div>
+      <a class="c-cta" href="https://airoasting.com/" target="_blank" rel="noopener">교안 바로가기 ↗</a>
+    </div>
+    <div class="c-main">
+      <div>
+        <div class="c-kick">Harness Engineering Workshop, 10.16 + 10.18</div>
+        <h1>The AX Native<span>Playbook</span></h1>
+        <p class="c-sub"><b>From AI User to AX Native.</b> 이틀 동안 익힌 6개의 플레이, 그리고 우리가 실전에서 만든 결과물을 한 권에 모았습니다. 막힐 때마다 다시 펼쳐 보세요.</p>
+      </div>
+      <figure class="hz">
+        <div class="hz-def"><div class="hz-word">harness <span>/ˈhɑːr.nɪs/</span></div><p><i>n.</i> 말의 힘을 원하는 방향으로 쓰게 하는 마구. 고삐와 재갈.</p></div>
+        <svg viewBox="0 0 480 440" fill="none" class="hz-svg" role="img" aria-label="굴레와 고삐 도식: 하네스를 이루는 여섯 장치"><text x="240" y="236" text-anchor="middle" font-family="Archivo,sans-serif" font-stretch="72%" font-weight="850" font-size="110" fill="none" stroke="rgba(233,236,234,.16)" stroke-width="1.2">AI</text><path d="M186 352C182 404 214 424 240 426C266 424 298 404 294 352" stroke="#E9ECEA" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M186 352C182 404 214 424 240 426C266 424 298 404 294 352" stroke="#101315" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M186 352C182 404 214 424 240 426C266 424 298 404 294 352" stroke="#E9ECEA" stroke-width=".6" stroke-dasharray="2 3" opacity=".55"/><rect x="233.0" y="421.0" width="14" height="10" rx="2" stroke="#C9951A" stroke-width="1.8" fill="#101315"/><path d="M240 423.0V429.0" stroke="#C9951A" stroke-width="1.4"/><path d="M176 120C176 190 180 270 188 318" stroke="#E9ECEA" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M176 120C176 190 180 270 188 318" stroke="#101315" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M176 120C176 190 180 270 188 318" stroke="#E9ECEA" stroke-width=".6" stroke-dasharray="2 3" opacity=".55"/><path d="M304 120C304 190 300 270 292 318" stroke="#E9ECEA" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M304 120C304 190 300 270 292 318" stroke="#101315" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M304 120C304 190 300 270 292 318" stroke="#E9ECEA" stroke-width=".6" stroke-dasharray="2 3" opacity=".55"/><path d="M176 124C176 52 304 52 304 124" stroke="#E9ECEA" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M176 124C176 52 304 52 304 124" stroke="#101315" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M176 124C176 52 304 52 304 124" stroke="#E9ECEA" stroke-width=".6" stroke-dasharray="2 3" opacity=".55"/><path d="M168 146C200 160 280 160 312 146" stroke="#E9ECEA" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M168 146C200 160 280 160 312 146" stroke="#101315" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M168 146C200 160 280 160 312 146" stroke="#E9ECEA" stroke-width=".6" stroke-dasharray="2 3" opacity=".55"/><path d="M178 150C150 190 152 236 186 262" stroke="#E9ECEA" stroke-width="1.2" opacity=".5"/><path d="M302 150C330 190 328 236 294 262" stroke="#E9ECEA" stroke-width="1.2" opacity=".5"/><path d="M178 262C206 284 274 284 302 262" stroke="#E9ECEA" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M178 262C206 284 274 284 302 262" stroke="#101315" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M178 262C206 284 274 284 302 262" stroke="#E9ECEA" stroke-width=".6" stroke-dasharray="2 3" opacity=".55"/><rect x="170.0" y="194.0" width="16" height="12" rx="2" stroke="#C9951A" stroke-width="1.8" fill="#101315"/><path d="M178 196.0V204.0" stroke="#C9951A" stroke-width="1.4"/><rect x="294.0" y="194.0" width="16" height="12" rx="2" stroke="#C9951A" stroke-width="1.8" fill="#101315"/><path d="M302 196.0V204.0" stroke="#C9951A" stroke-width="1.4"/><path d="M206 336Q240 352 274 336" stroke="#C9951A" stroke-width="3" stroke-linecap="round"/><circle cx="240" cy="345" r="4" fill="#C9951A"/><circle cx="190" cy="334" r="17" stroke="#C9951A" stroke-width="3"/><circle cx="290" cy="334" r="17" stroke="#C9951A" stroke-width="3"/><path d="M240 70L360 46" stroke="#8E9693" stroke-width=".7"/><circle cx="240" cy="70" r="2.4" fill="#C9951A"/><text x="366" y="43" text-anchor="start" font-family="IBM Plex Mono,monospace" font-size="9" letter-spacing="1" fill="#C9951A">01 CROWN</text><text x="366" y="57" text-anchor="start" font-family="IBM Plex Sans KR,sans-serif" font-size="11.5" font-weight="600" fill="#E9ECEA">역할</text><path d="M170 148L96 128" stroke="#8E9693" stroke-width=".7"/><circle cx="170" cy="148" r="2.4" fill="#C9951A"/><text x="90" y="125" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="9" letter-spacing="1" fill="#C9951A">02 BROWBAND</text><text x="90" y="139" text-anchor="end" font-family="IBM Plex Sans KR,sans-serif" font-size="11.5" font-weight="600" fill="#E9ECEA">평가 기준</text><path d="M304 232L372 212" stroke="#8E9693" stroke-width=".7"/><circle cx="304" cy="232" r="2.4" fill="#C9951A"/><text x="378" y="209" text-anchor="start" font-family="IBM Plex Mono,monospace" font-size="9" letter-spacing="1" fill="#C9951A">03 CHEEKPIECE</text><text x="378" y="223" text-anchor="start" font-family="IBM Plex Sans KR,sans-serif" font-size="11.5" font-weight="600" fill="#E9ECEA">맥락</text><path d="M196 278L96 282" stroke="#8E9693" stroke-width=".7"/><circle cx="196" cy="278" r="2.4" fill="#C9951A"/><text x="90" y="279" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="9" letter-spacing="1" fill="#C9951A">04 NOSEBAND</text><text x="90" y="293" text-anchor="end" font-family="IBM Plex Sans KR,sans-serif" font-size="11.5" font-weight="600" fill="#E9ECEA">도구</text><path d="M290 350L372 352" stroke="#8E9693" stroke-width=".7"/><circle cx="290" cy="350" r="2.4" fill="#C9951A"/><text x="378" y="349" text-anchor="start" font-family="IBM Plex Mono,monospace" font-size="9" letter-spacing="1" fill="#C9951A">05 BIT</text><text x="378" y="363" text-anchor="start" font-family="IBM Plex Sans KR,sans-serif" font-size="11.5" font-weight="600" fill="#E9ECEA">가드레일</text><path d="M206 412L110 412" stroke="#8E9693" stroke-width=".7"/><circle cx="206" cy="412" r="2.4" fill="#C9951A"/><text x="104" y="409" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="9" letter-spacing="1" fill="#C9951A">06 REINS</text><text x="104" y="423" text-anchor="end" font-family="IBM Plex Sans KR,sans-serif" font-size="11.5" font-weight="600" fill="#E9ECEA">워크플로우</text></svg>
+        <p class="hz-note">AI라는 힘에 여섯 가지 장치를 채워, 원하는 방향으로 일하게 만드는 설계. 이것이 하네스 엔지니어링입니다.</p>
+        <figcaption class="hz-cap"><b>힘은 AI가, 방향은 내가.</b><span>FIG. 01</span></figcaption>
+      </figure>
+    </div>
+    <div class="c-stats">
+      <div><b>37</b><span>워밍업 작품, 시와 스탑워치</span></div>
+      <div><b>32</b><span>Skill, Agent 실습물</span></div>
+      <div><b>13</b><span>나만의 업무 Skill</span></div>
+      <div><b>11/11</b><span>조별 데이터 보고서 배포</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="contents">
+  <div class="wrap">
+    <div><h2>Contents</h2><p>8개 장으로 구성했습니다. 교안은 각 장 안에서 바로 열 수 있습니다.</p></div>
+    <nav class="toc" aria-label="목차">
+      <a href="#scouting"><span class="n">01</span><span class="t">교육 전후 비교<small>Scouting</small></span><span class="p">P.01</span></a>
+      <a href="#drive"><span class="n">02</span><span class="t">이틀의 흐름<small>Game Plan</small></span><span class="p">P.02</span></a>
+      <a href="#plays"><span class="n">03</span><span class="t">핵심 플레이 6<small>Plays</small></span><span class="p">P.03</span></a>
+      <a href="#reel"><span class="n">04</span><span class="t">실습 작품 69<small>Highlight Reel</small></span><span class="p">P.04</span></a>
+      <a href="#roster"><span class="n">05</span><span class="t">업무 Skill 13<small>Roster</small></span><span class="p">P.05</span></a>
+      <a href="#gameday"><span class="n">06</span><span class="t">Kearney Hotspot<small>Game Day</small></span><span class="p">P.06</span></a>
+      <a href="#postgame"><span class="n">07</span><span class="t">우리가 얻은 것<small>Post-game</small></span><span class="p">P.07</span></a>
+      <a href="#drills"><span class="n">08</span><span class="t">복습 미션 8<small>Practice</small></span><span class="p">P.08</span></a>
+    </nav>
+    <div class="quick">
+      <a href="https://airoasting.com/" target="_blank" rel="noopener"><span class="label">Textbook</span><span class="t">AI 에이전트를 고용하라 ↗</span><span class="d">수업 교안 전체, 30여 개 레슨</span></a>
+      <a href="https://padlet.com/igm2023/igm-_-_1-_-10-16-18-s024iv3goauwi0n59ivn" target="_blank" rel="noopener"><span class="label">Padlet</span><span class="t">수업 패들렛 ↗</span><span class="d">교안, 실습물, 과제 원본</span></a>
+      <a href="https://jayden.airoasting.com/works/kearney/20261018_skill-assignments/" target="_blank" rel="noopener"><span class="label">Skills</span><span class="t">Skill 과제 모음 ↗</span><span class="d">SKILL.md와 결과 HTML</span></a>
+      <a href="https://jayden.airoasting.com/works/kearney/20261018_tasks/awards.html" target="_blank" rel="noopener"><span class="label">Awards</span><span class="t">Hotspot 시상식 ↗</span><span class="d">11개 조 결과물</span></a>
+    </div>
+  </div>
+</section>
+
+<nav class="rail" aria-label="장 이동">
+  <div class="wrap" id="rail">
+    <a href="#scouting"><span>01</span>Scouting</a><a href="#drive"><span>02</span>Game Plan</a><a href="#plays"><span>03</span>Plays</a><a href="#reel"><span>04</span>Highlight</a><a href="#roster"><span>05</span>Roster</a><a href="#gameday"><span>06</span>Game Day</a><a href="#postgame"><span>07</span>Post-game</a><a href="#drills"><span>08</span>Practice</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section class="sec" id="scouting">
+    <div class="s-head"><div class="s-no">01</div><div><div class="s-kick">Scouting Report</div><h2 class="s-title">교육 전후 AI 활용 수준</h2><p class="s-desc">사전설문(31명)의 AI 활용 단계와 교육 기간 중 만든 결과물을 비교했습니다.</p></div></div>
+    <div class="scout">
+      <div class="box">
+        <h3>Before, 실제로 해본 활용 중 가장 높은 단계</h3>
+        <p class="cs">PRE-SURVEY, N=31</p>
+        <div class="dist" id="dist"></div>
+        <p class="note">가장 많은 응답은 <b>LEVEL 1, 프로젝트에 지침 세팅</b>이었습니다. Skill이나 에이전트까지 해본 사람은 <b>15명, 48%</b>였습니다.</p>
+      </div>
+      <div class="box">
+        <h3>After, 교육 기간 중 만든 결과물</h3>
+        <p class="cs">PADLET, ASSIGNMENTS, AWARDS</p>
+        <div class="after">
+          <div class="arow"><b>18<small>개</small></b><span>뉴스 클리핑 Skill 실행<i>반복 업무를 Skill로 호출</i></span><em>LV.2</em></div>
+          <div class="arow"><b>13<small>개</small></b><span>내 업무 Skill 설계, 제출<i>검증 루프까지 포함</i></span><em>LV.2</em></div>
+          <div class="arow"><b>14<small>권</small></b><span>멀티 에이전트 백과사전<i>여러 에이전트에 나눠 맡기기</i></span><em>LV.3</em></div>
+          <div class="arow top"><b>11<small>/11</small></b><span>조 전원, API 연결 보고서 배포<i>데이터 연결부터 웹 배포까지</i></span><em>LV.3</em></div>
+        </div>
+      </div>
+    </div>
+    <div class="vs">
+      <div class="box"><h3>맡기고 싶다고 한 일</h3><p class="cs">BEFORE, 사전설문 응답 18건</p><div id="wish"></div></div>
+      <div class="box"><h3>실제로 만든 업무 Skill</h3><p class="cs">AFTER, 1일차 과제 13건</p><div id="built"></div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="drive">
+    <div class="s-head"><div class="s-no">02</div><div><div class="s-kick">Game Plan</div><h2 class="s-title">이틀의 흐름</h2><p class="s-desc">1일차에는 AI에게 일을 맡기는 구조를 익히고, 2일차에는 실제 데이터로 조별 프로젝트를 진행했습니다. 단계마다 해당 교안을 연결해 두었습니다.</p></div></div>
+    <div class="drive">
+      <div class="dday">
+        <div class="dday-h"><h3>Day 1, AI 에이전트 고용 기초</h3><span>10.16 FRI</span></div>
+        <ol>
+          <li><span class="n">01</span><div><b>소개와 진단</b><span>AI 활용 수준을 0~5단계로 진단</span></div><a href="https://airoasting.com/ai-levels.html" target="_blank" rel="noopener">교안</a></li>
+          <li><span class="n">02</span><div><b>멀티 페르소나로 시 쓰기</b><span>역할을 나눠 쓰고 비평하고 다시 쓰기</span></div><a href="https://airoasting.com/multi-persona.html" target="_blank" rel="noopener">교안</a></li>
+          <li><span class="n">03</span><div><b>바이브 코딩, 스탑워치</b><span>한 줄 지시로 앱 만들고 GitHub 배포</span></div><a href="https://airoasting.com/vibe-coding-tasks.html" target="_blank" rel="noopener">교안</a></li>
+          <li><span class="n">04</span><div><b>파일 유형과 하네스</b><span>.md는 AI가 읽고 .html은 AI가 만든다</span></div><a href="https://airoasting.com/harness-engineering.html" target="_blank" rel="noopener">교안</a></li>
+          <li><span class="n">05</span><div><b>Skill 만들기, 뉴스 클리핑</b><span>반복 업무를 한 줄 호출로</span></div><a href="https://airoasting.com/skills.html" target="_blank" rel="noopener">교안</a></li>
+          <li><span class="n">06</span><div><b>멀티 에이전트, 백과사전</b><span>여러 에이전트로 한 권 만들기</span></div><a href="https://airoasting.com/harness-workflows.html" target="_blank" rel="noopener">교안</a></li>
+        </ol>
+        <div class="f"><b>HOMEWORK</b>내 업무의 반복 워크플로우를 Skill로 설계</div>
+      </div>
+      <div class="dday">
+        <div class="dday-h"><h3>Day 2, AI 에이전트 고용 실전</h3><span>10.18 SUN</span></div>
+        <ol>
+          <li><span class="n">01</span><div><b>Skill 과제 리뷰</b><span>하네스 6요소로 함께 점검</span></div><a href="https://jayden.airoasting.com/works/kearney/20261018_skill-assignments/" target="_blank" rel="noopener">리뷰</a></li>
+          <li><span class="n">02</span><div><b>에이전트의 도구</b><span>내장 도구, MCP, 커넥터, 스킬, 플러그인</span></div><a href="https://airoasting.com/agent-tools.html" target="_blank" rel="noopener">교안</a></li>
+          <li><span class="n">03</span><div><b>DART 연결</b><span>공시 API로 실적 수집, 리포트 생성</span></div><a href="https://airoasting.com/mcp-examples.html" target="_blank" rel="noopener">교안</a></li>
+          <li><span class="n">04</span><div><b>서울 열린데이터 연결</b><span>공공데이터 API로 상권 데이터</span></div><a href="https://data.seoul.go.kr/" target="_blank" rel="noopener">API</a></li>
+          <li><span class="n">05</span><div><b>조별 미션, Kearney Hotspot</b><span>11개 조가 상권 분석 자동화</span></div><a href="#gameday">결과</a></li>
+          <li><span class="n">06</span><div><b>배포, 발표, 시상</b><span>GitHub Pages로 배포하고 발표</span></div><a href="https://airoasting.com/github-guide.html" target="_blank" rel="noopener">교안</a></li>
+        </ol>
+        <div class="f"><b>RESULT</b>11개 조 전원, 데이터 분석 보고서를 웹으로 배포</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="plays">
+    <div class="s-head"><div class="s-no">03</div><div><div class="s-kick">The Plays</div><h2 class="s-title">다시 꺼내 쓸 핵심 플레이 6</h2><p class="s-desc">교안 5단계를 실전에서 쓰는 순서대로 플레이로 묶었습니다. 언제 쓰는지와 다시 볼 레슨을 함께 붙였습니다.</p></div><a class="s-link" href="https://airoasting.com/" target="_blank" rel="noopener">교안 전체 ↗</a></div>
+    <div class="plays" id="playGrid"></div>
+    <div class="toolbox">
+      <div><div class="label">Equipment</div><p style="font-size:13px;color:var(--ink-2);margin-top:6px">바로 가져다 쓰는 라이브러리</p></div>
+      <div class="tools">
+        <a href="https://skill.airoasting.com/" target="_blank" rel="noopener"><b>스킬 라이브러리 150</b> ↗</a>
+        <a href="https://mcp.airoasting.com/" target="_blank" rel="noopener"><b>MCP 허브 60</b> ↗</a>
+        <a href="https://slide.airoasting.com/" target="_blank" rel="noopener"><b>슬라이드 라이브러리 35</b> ↗</a>
+        <a href="https://strategy.airoasting.com/" target="_blank" rel="noopener"><b>전략 프레임워크 70</b> ↗</a>
+        <a href="https://github.com/airoasting/dart" target="_blank" rel="noopener"><b>DART 스킬</b> ↗</a>
+        <a href="https://github.com/airoasting/hound" target="_blank" rel="noopener"><b>Hound 검색 스킬</b> ↗</a>
+        <a href="https://github.com/airoasting/korean" target="_blank" rel="noopener"><b>Korean 윤문 스킬</b> ↗</a>
+        <a href="https://airoasting.com/ax-consulting-reports.html" target="_blank" rel="noopener"><b>빅3 컨설팅펌 AX 전략</b> ↗</a>
+        <a href="https://airoasting.com/glossary.html" target="_blank" rel="noopener"><b>용어 사전 75</b> ↗</a>
+        <a href="https://airoasting.com/security-guide.html" target="_blank" rel="noopener"><b>AI와 안전하게 일하는 법</b> ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="reel">
+    <div class="s-head"><div class="s-no">04</div><div><div class="s-kick">Highlight Reel</div><h2 class="s-title">1일차 실습 작품 69</h2><p class="s-desc">같은 한 줄 지시로 출발했지만 결과는 모두 달랐습니다. 카드를 누르면 패들렛 원본이 열립니다.</p></div></div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="reel-note"><span id="galNote"></span><a id="galLink" href="https://airoasting.com/showcase-poems.html" target="_blank" rel="noopener">강사 쇼케이스 ↗</a></div>
+    <div class="reel" id="gal"></div>
+  </section>
+
+  <section class="sec" id="roster">
+    <div class="s-head"><div class="s-no">05</div><div><div class="s-kick">The Roster</div><h2 class="s-title">1일차 직후 만든 업무 Skill 13</h2><p class="s-desc">각자의 컨설팅 업무를 Skill로 설계했습니다. 동료의 SKILL.md를 참고해 내 업무에 맞게 재설계해 보세요.</p></div><a class="s-link" href="https://jayden.airoasting.com/works/kearney/20261018_skill-assignments/" target="_blank" rel="noopener">SKILL.md 전체 ↗</a></div>
+    <div class="roster" id="rosterT"></div>
+  </section>
+
+  <section class="sec" id="gameday">
+    <div class="s-head"><div class="s-no">06</div><div><div class="s-kick">Game Day, 10.18</div><h2 class="s-title">서울 공공데이터로 상권 분석을 자동화하다</h2><p class="s-desc">서울 열린데이터 API 연결부터 분석, 보고서 작성, 웹 배포까지 AI로 진행한 조별 미션입니다.</p></div><a class="s-link" href="https://jayden.airoasting.com/works/kearney/20261018_tasks/awards.html" target="_blank" rel="noopener">시상식 ↗</a></div>
+    <div class="gd-steps">
+      <div><i>STEP 1</i><b>연결</b><span>서울 열린데이터 API</span></div>
+      <div><i>STEP 2</i><b>분석</b><span>매출, 유동인구, 임대료</span></div>
+      <div><i>STEP 3</i><b>제안</b><span>카페 6개 조, 베이커리 5개 조</span></div>
+      <div><i>STEP 4</i><b>배포</b><span>GitHub Pages로 공유</span></div>
+    </div>
+    <div class="win3">
+      <div class="wc"><span class="wr">1위<i>.</i></span><span class="wt">TEAM 01, 이윤희, 신현재</span><h3>퇴계로 5가, 스페셜티 카페</h3><p>HANJAN Coffee Seoul. 외국인 카드 지출 약 6.5배, 개인 카페 9곳에 프랜차이즈 0%.</p><a href="https://tzc75787cv-hub.github.io/kearney-hotspot-1-cafe/" target="_blank" rel="noopener">결과물 보기 ↗</a></div>
+      <div class="wc"><span class="wr">2위<i>.</i></span><span class="wt">TEAM 08, 김지은, 안주영</span><h3>문래예술촌, 에그타르트 베이커리</h3><p>엠폰투 em ponto. 진입적기 지수 84.5로 281곳 중 1위, 프랜차이즈 비중 5%.</p><a href="https://jek-wa.github.io/kearney-hotsopt-8-bakery/" target="_blank" rel="noopener">결과물 보기 ↗</a></div>
+      <div class="wc"><span class="wr">3위<i>.</i></span><span class="wt">TEAM 07, 인준수</span><h3>둔촌, 아침 식사빵 베이커리</h3><p>둔촌 아침빵. 유동인구 +45.5%, 1층 월세 평당 90만 원에서 60만 원으로 하락.</p><a href="https://junsuyoung96-lang.github.io/stopwatch/bakery/" target="_blank" rel="noopener">결과물 보기 ↗</a></div>
+    </div>
+    <div class="tlist" id="teams"></div>
+  </section>
+
+  <section class="sec" id="postgame">
+    <div class="s-head"><div class="s-no">07</div><div><div class="s-kick">Post-game</div><h2 class="s-title">이틀 동안 우리가 얻은 것</h2><p class="s-desc">두 번의 사후 설문, 41개 응답을 여섯 가지로 묶었습니다.</p></div></div>
+    <div class="pg">
+      <div class="pgc feat">
+        <div class="fl">
+          <span class="k">COLLABORATION</span>
+          <h4>혼자 쓰던 AI를, 처음으로 팀이 함께 썼습니다</h4>
+          <p>2~3명씩 11개 조가 하나의 데이터 파이프라인과 보고서를 함께 만들었습니다. AI를 개인 도구가 아니라 팀의 작업 공간으로 쓰는 경험이었습니다.</p>
+          <q>"AI를 보통 혼자서만 쓰는데, AI로 협업하는 방법을 배운 것 같습니다."</q>
+        </div>
+        <svg viewBox="0 0 220 180" fill="none" aria-hidden="true">
+          <rect x="78" y="62" width="64" height="56" rx="4" fill="rgba(255,255,255,.12)" stroke="#fff" stroke-width="1.4"/>
+          <path d="M88 76h44M88 86h36M88 96h40M88 106h24" stroke="#BFE0D5" stroke-width="1.4" stroke-linecap="round"/>
+          <text x="110" y="134" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9" fill="#BFE0D5" letter-spacing="1">SHARED REPORT</text>
+          <g stroke="#BFE0D5" stroke-width="1.2" stroke-dasharray="3 4"><path d="M110 40v22"/><path d="M44 110l34-6"/><path d="M176 110l-34-6"/></g>
+          <g stroke="#fff" stroke-width="1.6" fill="none">
+            <circle cx="110" cy="18" r="8"/><path d="M96 40c0-8 6-12 14-12s14 4 14 12"/>
+            <circle cx="30" cy="100" r="8"/><path d="M16 122c0-8 6-12 14-12s14 4 14 12"/>
+            <circle cx="190" cy="100" r="8"/><path d="M176 122c0-8 6-12 14-12s14 4 14 12"/>
+          </g>
+          <circle cx="142" cy="62" r="11" fill="#C9951A"/><text x="142" y="62" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono,monospace" font-size="8.5" font-weight="600" fill="#121417">AI</text>
+        </svg>
+      </div>
+      <div class="pgc"><span class="k">PERSPECTIVE</span><h4>"AI를 쓴다"는 걸 처음 체감</h4><p>개념으로만 알던 활용법을 직접 손으로 해봤습니다.</p><q>"AI를 쓴다는 게 오늘에서야 체감이 됐습니다."</q></div>
+      <div class="pgc"><span class="k">LEARNING</span><h4>이론보다 직접 만드는 실습</h4><p>2일차 좋았던 점 18건 중 10건이 실습과 참여형 진행이었습니다.</p><q>"이론보다 실무에서 손에 잡히는 결과물을 얻는 법을 배웠습니다."</q></div>
+      <div class="pgc"><span class="k">APPLY</span><h4>리서치와 회의 정리에 바로</h4><p>업무에 바로 쓰겠다는 응답이 Skill 자동화와 리서치에 몰렸습니다.</p><q>"초반 업무 파악 리서치에 먼저 써보고 싶습니다."</q></div>
+      <div class="pgc"><span class="k">WAY OF WORKING</span><h4>장표 대신 HTML로 논의하기</h4><p>보고서를 만드는 방식 자체를 다시 보게 됐습니다.</p><q>"HTML로 디스커션하는 게 사람의 읽는 습성에 더 맞지 않을까."</q></div>
+      <div class="pgc"><span class="k">NEXT</span><h4>한 번으로는 아쉽다</h4><p>1회로는 체득이 어렵다며 실무 적용 후속 과정을 요청했습니다.</p><q>"비슷한 교육을 더 열어주시면 적극 참여하겠습니다."</q></div>
+    </div>
+    <div class="pg2">
+      <div class="box"><h3>업무에 바로 써보고 싶은 것</h3><p class="cs">POST-SURVEY, 자유응답 분류, 단위 건</p><div id="useBars"></div></div>
+      <div class="box"><h3>다음에 더 배우고 싶은 것</h3><p class="cs">DAY 2 POST-SURVEY</p>
+        <div class="wish"><span>실제 프로젝트용 에이전트</span><span>회사 템플릿 AI 장표</span><span>바이브 코딩</span><span>Demo App</span><span>클라우드 배포</span><span>온톨로지</span><span>AI 데이터 분석</span><span>작업 예약 자동 실행</span><span>AX 보안</span><span>영상, 웹사이트 결과물</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="drills">
+    <div class="s-head"><div class="s-no">08</div><div><div class="s-kick">Practice</div><h2 class="s-title">복습 미션, 내 업무에서 다시 돌려보기</h2><p class="s-desc">미션마다 교안을 붙였습니다. 해본 것을 체크하면 레벨이 오릅니다. 기록은 이 브라우저에만 저장됩니다.</p></div></div>
+    <div class="drills">
+      <div class="score">
+        <div class="label">Your Score</div>
+        <div class="big" id="cnt">0<small>/8</small></div>
+        <div class="bar" id="sbar"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="lv" id="lv">AI User</div>
+        <div class="lvs"><span data-m="0">USER</span><span data-m="3">BUILDER</span><span data-m="6">HIRER</span><span data-m="8">NATIVE</span></div>
+      </div>
+      <div class="dlist">
+        <label class="drill"><input type="checkbox" id="m1"><span class="dn">D-01</span><div><b>내 Skill을 이번 주 실제 업무에 한 번 더 돌리기</b><span>과제로 만든 Skill을 그대로 써보기</span></div><a href="https://airoasting.com/skills.html" target="_blank" rel="noopener">교안 ↗</a></label>
+        <label class="drill"><input type="checkbox" id="m2"><span class="dn">D-02</span><div><b>보고서 초안을 멀티 페르소나로 검토받기</b><span>다섯 관점 피드백 받고 한 번 고치기</span></div><a href="https://5color.airoasting.com/" target="_blank" rel="noopener">5 Color ↗</a></label>
+        <label class="drill"><input type="checkbox" id="m3"><span class="dn">D-03</span><div><b>DART로 담당 고객사 실적 리포트 만들기</b><span>경쟁사 비교까지 하면 바로 실무용</span></div><a href="https://github.com/airoasting/dart" target="_blank" rel="noopener">DART ↗</a></label>
+        <label class="drill"><input type="checkbox" id="m4"><span class="dn">D-04</span><div><b>뉴스 클리핑을 매일 아침 자동 실행으로</b><span>Routines로 정해진 시각에 무인 실행</span></div><a href="https://airoasting.com/routines.html" target="_blank" rel="noopener">교안 ↗</a></label>
+        <label class="drill"><input type="checkbox" id="m5"><span class="dn">D-05</span><div><b>동료의 Skill을 참고해 내 Skill 재설계하기</b><span>05장 Roster에서 구조를 살펴보고 내 업무에 적용</span></div><a href="https://jayden.airoasting.com/works/kearney/20261018_skill-assignments/" target="_blank" rel="noopener">Skill ↗</a></label>
+        <label class="drill"><input type="checkbox" id="m6"><span class="dn">D-06</span><div><b>AGENTS.md에 내 업무 규칙 적어두기</b><span>대화마다 반복하던 설명을 파일 하나로</span></div><a href="https://airoasting.com/agents-md-templates.html" target="_blank" rel="noopener">교안 ↗</a></label>
+        <label class="drill"><input type="checkbox" id="m7"><span class="dn">D-07</span><div><b>결과물을 GitHub에 배포해 링크로 공유</b><span>장표 대신 HTML로 팀 논의</span></div><a href="https://airoasting.com/github-guide.html" target="_blank" rel="noopener">교안 ↗</a></label>
+        <label class="drill"><input type="checkbox" id="m8"><span class="dn">D-08</span><div><b>내 Skill에 루프 넣기</b><span>합격 기준을 넘을 때까지 반복하는 구조</span></div><a href="https://airoasting.com/loop-engineering.html" target="_blank" rel="noopener">교안 ↗</a></label>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="next">
+  <div class="wrap">
+    <div>
+      <h2>Next<span>Season</span></h2>
+      <p>이틀 동안 질문하던 사람에서 일을 맡기고 검증하는 사람이 되었습니다. 이 플레이북은 언제든 다시 펼쳐 볼 수 있습니다.</p>
+    </div>
+    <div class="nx">
+      <div class="label">Advanced Course</div>
+      <h3>AI 에이전트 개발 프로젝트 심화</h3>
+      <p>현업 문제를 AI 에이전트로 직접 구현하는 2일 프로젝트형 과정입니다. 페인포인트 발굴부터 시제품 구현, 운영 체계화와 조직 자산화까지 이어집니다.</p>
+      <div class="m">LV. 심화, 2일 11H, 이석현 대표</div>
+      <a class="apply" href="https://verdant-custard-5b4519.netlify.app/" target="_blank" rel="noopener">심화 과정 신청하기 ↗</a>
+    </div>
+  </div>
+</section>
+<footer class="foot"><div class="wrap">AX NATIVE ACADEMY, KEARNEY KOREA. HARNESS ENGINEERING WORKSHOP, INTERMEDIATE COHORT 01 PLAYBOOK. 운영 IGM 세계경영연구원</div></footer>
+
+<script>
+(function(){
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function el(id){return document.getElementById(id);}
+  var A='https://airoasting.com/';
+
+  // scouting ladder
+  var LV=[['0','검색, 초안에 활용',4,'#D3D7DA','#121417'],['1','프로젝트에 지침 세팅',12,'#9AA1A8','#fff'],['2','스킬, 워크플로우화',7,'#3E8F78','#fff'],['3','에이전트, 루프 설계',8,'#0E5C4A','#fff']];
+  var N=31,acc=0,segs='',lg='';
+  LV.forEach(function(d,i){var w=d[2]/N*100;segs+='<div style="flex:'+d[2]+' 1 0;background:'+d[3]+';color:'+d[4]+';animation-delay:'+(i*.08)+'s">'+Math.round(w)+'<small>%</small></div>';
+    lg+='<div><i style="background:'+d[3]+'"></i><b>LEVEL '+d[0]+'</b><span>'+d[1]+'</span><em>'+d[2]+'명</em></div>';});
+  var left=(4+12)/N*100;
+  el('dist').innerHTML='<div class="dist-br"><div style="left:calc('+left+'% + 2px);right:0"></div><span style="left:'+(left+(100-left)/2)+'%">LEVEL 2 이상, 15명 48%</span></div><div class="dist-bar">'+segs+'</div><div class="dist-axis"><span>묻는 단계</span><span>맡기는 단계</span></div><div class="dist-lg">'+lg+'</div>';
+  function hb(id,data,hi,unit){var m=Math.max.apply(null,data.map(function(d){return d[1];}));
+    el(id).innerHTML=data.map(function(d,i){return '<div class="hb'+(hi(i)?' p':'')+'"><span class="l">'+esc(d[0])+'</span><span class="t"><span class="f" style="display:block;width:'+(d[1]/m*100)+'%;animation-delay:'+(i*.07)+'s"></span></span><span class="v">'+d[1]+unit+'</span></div>';}).join('');}
+  hb('wish',[['리서치, 동향 파악',6],['업무 자동화, 에이전트',4],['반복 정리, To-do',4],['장표, 문서 작성',2],['기타',2]],function(){return false;},'명');
+  hb('built',[['리서치, 사례 조사',7],['회의, 인터뷰 정리',4],['개발, 업무 자동화',2]],function(){return true;},'개');
+  hb('useBars',[['Skill로 반복 업무 자동화',17],['리서치, 시장 조사',12],['멀티 페르소나 검증',7],['장표, HTML 보고서',6],['인터뷰, 회의록 정리',5],['뉴스 클리핑, 기사 DB',3]],function(i){return i<2;},'건');
+
+  // plays with route diagrams
+  var I='#121417',Mu='#8A9099',Ln='#B8BDC2',G='#0E5C4A',M='#C9951A',W='#FFFFFF';
+  function mk(i){return '<defs><marker id="ah'+i+'" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 8 4 0 8z" fill="'+I+'"/></marker><marker id="ag'+i+'" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 8 4 0 8z" fill="'+G+'"/></marker></defs>';}
+  function ln(d,i,c,dash){return '<path d="'+d+'" fill="none" stroke="'+(c||I)+'" stroke-width="1.25"'+(dash?' stroke-dasharray="3 3"':'')+(i!=null?' marker-end="url(#'+(c===G?'ag':'ah')+i+')"':'')+'/>';}
+  function bx(x,y,w,h,t,fill,tc,fs){return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="3" fill="'+(fill||W)+'" stroke="'+(fill&&fill!==W?fill:I)+'" stroke-width="1.25"/>'+(t?'<text x="'+(x+w/2)+'" y="'+(y+h/2)+'" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Sans KR,sans-serif" font-size="'+(fs||9.5)+'" font-weight="600" fill="'+(tc||I)+'">'+t+'</text>':'');}
+  function nd(x,y,r,fill,t,tc){return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+fill+'" stroke="'+(fill===W?I:fill)+'" stroke-width="1.25"/>'+(t?'<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono,monospace" font-size="8.5" font-weight="600" fill="'+(tc||W)+'">'+t+'</text>':'');}
+  function tx(x,y,t,c,a,fs){return '<text x="'+x+'" y="'+y+'" text-anchor="'+(a||'start')+'" font-family="IBM Plex Sans KR,sans-serif" font-size="'+(fs||9)+'" fill="'+(c||Mu)+'">'+t+'</text>';}
+  function mo(x,y,t,c,a){return '<text x="'+x+'" y="'+y+'" text-anchor="'+(a||'start')+'" font-family="IBM Plex Mono,monospace" font-size="8" letter-spacing=".8" fill="'+(c||Mu)+'">'+t+'</text>';}
+  var DG=[
+    function(i){return mk(i)+bx(10,58,46,24,'질문')+ln('M56 70C80 70 84 34 108 32',i)+ln('M56 70H108',i)+ln('M56 70C80 70 84 106 108 108',i)
+      +nd(120,32,11,I,'A')+nd(120,70,11,I,'B')+nd(120,108,11,I,'C')+tx(136,35,'전략가',I)+tx(136,73,'재무',I)+tx(136,111,'비평가',I)
+      +'<path d="M110 42C102 50 102 58 110 61M110 80C102 88 102 96 110 99" fill="none" stroke="'+M+'" stroke-width="1.25" stroke-dasharray="2 3"/>'+mo(98,73,'반박',M,'end')
+      +ln('M172 32C200 32 200 66 214 68',i,G)+ln('M172 70H214',i,G)+ln('M172 108C200 108 200 74 214 72',i,G)+bx(216,56,56,28,'검증된 결론',G,W,9);},
+    function(i){return mk(i)+'<path d="M10 52h62a6 6 0 0 1 6 6v14a6 6 0 0 1-6 6H30l-8 8v-8H16a6 6 0 0 1-6-6V58a6 6 0 0 1 6-6z" fill="'+W+'" stroke="'+I+'" stroke-width="1.25"/>'+tx(44,68,'만들어줘',I,'middle',9)
+      +ln('M80 65H104',i)+'<rect x="106" y="30" width="86" height="72" rx="4" fill="'+W+'" stroke="'+I+'" stroke-width="1.25"/><path d="M106 42h86" stroke="'+I+'" stroke-width="1.25"/>'
+      +'<circle cx="113" cy="36" r="1.8" fill="'+Mu+'"/><circle cx="119" cy="36" r="1.8" fill="'+Mu+'"/><circle cx="125" cy="36" r="1.8" fill="'+Mu+'"/>'
+      +'<circle cx="149" cy="70" r="17" fill="none" stroke="'+G+'" stroke-width="1.5"/><path d="M149 70V60M149 70l7 4" stroke="'+G+'" stroke-width="1.5" stroke-linecap="round"/>'
+      +ln('M192 66H212',i,G)+'<rect x="214" y="56" width="58" height="20" rx="10" fill="'+G+'"/>'+mo(243,69,'github.io',W,'middle')+mo(243,92,'링크로 공유',Mu,'middle');},
+    function(i){var rows=['역할','기준','맥락','도구','절차','가드레일'],o=mk(i)+'<rect x="14" y="14" width="120" height="112" rx="4" fill="'+W+'" stroke="'+I+'" stroke-width="1.25"/><path d="M14 32h120" stroke="'+I+'" stroke-width="1.25"/>'+mo(22,26,'SKILL.md',I);
+      rows.forEach(function(r,k){var cx=22+(k%2)*56,cy=40+Math.floor(k/2)*28;o+='<rect x="'+cx+'" y="'+cy+'" width="50" height="20" rx="2" fill="'+(k===5?'#F6EBCF':'#F2F3F1')+'" stroke="'+(k===5?M:Ln)+'"/>'+tx(cx+25,cy+13.5,r,I,'middle',8.5);});
+      return o+ln('M134 70H174',i,G)+'<rect x="176" y="58" width="96" height="24" rx="12" fill="'+I+'"/>'+mo(224,73,'/my-skill',W,'middle')+tx(224,100,'한 줄로 같은 품질',Mu,'middle');},
+    function(i){var ag=['리서치','분석','작성','검토'],o=mk(i)+nd(30,70,14,I,'GOAL')+tx(30,98,'/goal',Mu,'middle');
+      ag.forEach(function(a,k){var y=22+k*32;o+=ln('M44 70C70 70 74 '+(y+10)+' 98 '+(y+10),i)+bx(100,y,58,20,a,W,I,9)+ln('M158 '+(y+10)+'C186 '+(y+10)+' 190 70 210 70',null,G);});
+      return o+'<path d="M206 66l6 4-6 4" fill="'+G+'"/>'+bx(214,58,58,24,'결과 조합',G,W,9);},
+    function(i){var o=mk(i)+bx(10,30,62,24,'DART 공시',W,I,9)+bx(10,86,62,24,'서울 열린데이터',W,I,8)+mo(41,22,'API',Mu,'middle')+mo(41,124,'API',Mu,'middle')
+      +ln('M72 42C96 42 100 66 116 68',i)+ln('M72 98C96 98 100 74 116 72',i)+nd(128,70,12,M,'AI')+ln('M140 70H170',i,G)
+      +'<rect x="172" y="34" width="100" height="72" rx="4" fill="'+W+'" stroke="'+I+'" stroke-width="1.25"/>';
+      [18,30,24,42,36].forEach(function(h,k){o+='<rect x="'+(184+k*16)+'" y="'+(96-h)+'" width="10" height="'+h+'" fill="'+(k===3?G:'#C9CED2')+'"/>';});
+      return o+'<path d="M180 96h84" stroke="'+I+'" stroke-width="1"/>'+mo(222,48,'REPORT',Mu,'middle');},
+    function(i){return mk(i)+'<circle cx="104" cy="70" r="44" fill="none" stroke="'+Ln+'" stroke-width="1.25" stroke-dasharray="3 3"/>'
+      +'<path d="M70 42A44 44 0 0 1 138 42" fill="none" stroke="'+I+'" stroke-width="1.25" marker-end="url(#ah'+i+')"/><path d="M146 82A44 44 0 0 1 104 114" fill="none" stroke="'+I+'" stroke-width="1.25" marker-end="url(#ah'+i+')"/><path d="M80 108A44 44 0 0 1 60 72" fill="none" stroke="'+I+'" stroke-width="1.25" marker-end="url(#ah'+i+')"/>'
+      +nd(66,40,9,W,'',I)+nd(148,70,9,W,'',I)+nd(76,106,9,W,'',I)+tx(52,30,'만들기',I,'middle')+tx(166,60,'채점',I)+tx(52,124,'고치기',I,'middle')
+      +'<text x="104" y="66" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="8" fill="'+Mu+'">PASS LINE</text><text x="104" y="80" text-anchor="middle" font-family="Archivo,sans-serif" font-stretch="75%" font-weight="800" font-size="15" fill="'+G+'">9.5+</text>'
+      +ln('M157 70H206',i,G)+bx(208,58,64,24,'통과, 예약 실행',G,W,8.5)+mo(240,100,'EVERY 08:00',Mu,'middle');}
+  ];
+  var P=[
+    ['01','소환','멀티 페르소나','여러 전문가 역할로 나눠 쓰고 서로 반박하게 해 동조와 환각을 걸러냅니다.','결론이 너무 그럴듯할 때, 보고서 초안 검토',[['멀티 페르소나 토론','multi-persona.html','10분',1],['AI의 환각을 벗어나는 법','ai-hallucination.html','12분',0],['5 Color 협업 방법론','https://5color.airoasting.com/','사이트',1]]],
+    ['02','연결','바이브 코딩과 배포','한국어 지시로 화면을 만들고 GitHub로 올려 링크 하나로 공유합니다.','장표 대신 보여줄 결과물이 필요할 때',[['바이브 코딩 101','vibe-coding-101.html','10분',1],['실전 과제 7가지','vibe-coding-tasks.html','중급',1],['GitHub, Vercel, Netlify','github-guide.html','20분',1]]],
+    ['03','계약','하네스와 Skill','역할, 기준, 맥락, 도구, 절차, 가드레일을 SKILL.md에 담아 한 줄로 호출합니다.','같은 설명을 세 번 이상 반복했을 때',[['하네스 엔지니어링이란?','harness-engineering.html','15분',1],['나만의 Skill 만들기','skills.html','20분',1],['AGENTS.md로 규칙 알려주기','agents-md-templates.html','10분',0]]],
+    ['04','조합','멀티 에이전트','큰 일을 여러 에이전트에 나눠 맡기고 결과를 하나로 합칩니다.','리서치 범위가 넓거나 결과물이 클 때',[['멀티 에이전트 소환','harness-workflows.html','15분',1],['하네스로 책 쓰기','harness-book.html','20분',0],['50 에이전트 팀 빌더','https://50agents.airoasting.com/','사이트',0]]],
+    ['05','연결','API와 MCP','DART 공시, 서울 열린데이터처럼 바깥의 실제 데이터를 AI가 직접 가져옵니다.','숫자 근거가 필요한 분석, 정기 리서치',[['에이전트의 도구란?','agent-tools.html','12분',1],['MCP 연결 실전','mcp-examples.html','15분',1],['MCP 허브 60','https://mcp.airoasting.com/','사이트',0]]],
+    ['06','자율','루프와 예약 실행','기준을 넘을 때까지 스스로 고치게 하고, 정해진 시각에 무인으로 돌립니다.','매일, 매주 반복되는 업무',[['루프 엔지니어링이란?','loop-engineering.html','14분',0],['Routines 예약 실행','routines.html','12분',0],['컴퍼니 브레인이란','company-brain.html','15분',0]]]
+  ];
+  el('playGrid').innerHTML=P.map(function(p,i){return '<article class="play"><div class="play-top"><span class="no">PLAY '+p[0]+'</span><span class="st">교안 '+p[1]+'</span></div><div class="play-dg"><svg viewBox="0 0 282 140" fill="none" aria-hidden="true">'+DG[i](i)+'</svg></div><div class="play-bd"><h3>'+p[2]+'</h3><p class="call">'+p[3]+'</p><p class="when"><b>WHEN</b>'+p[4]+'</p><div class="les">'+p[5].map(function(l){var u=/^https/.test(l[1])?l[1]:A+l[1];return '<a class="'+(l[3]?'used':'')+'" href="'+u+'" target="_blank" rel="noopener"><span>'+esc(l[0])+'</span><i>'+l[2]+' ↗</i></a>';}).join('')+'</div></div></article>';}).join('');
+
+  // highlight reel
+  var PAD='https://padlet.com/igm2023/igm-_-_1-_-10-16-18-s024iv3goauwi0n59ivn/wish/';
+  var ACC={poem:'#C9951A',watch:'#121417',news:'#0E5C4A',enc:'#3E8F78'};
+  var GL={
+    poem:{label:'시 쓰기',k:'POEM',note:'멀티 페르소나로 쓰고 비평하고 다시 쓴 시. 10월이라 시월이 유독 많습니다.',sc:A+'showcase-poems.html',sl:'강사 쇼케이스 ↗',items:[['시월, 반납일','E851Q0qgNBMbZVAb'],['시월의 안부','pRxDZ4MmygqXW183'],['시월의 뺄셈','x5A7arDvAMV4Zwr6'],['「시월」','PVKBQOrDK86Baj5x'],['은행나무 아래서','MxrmZYeMNJJBZGOq'],['수령','PR3NWxqXK2K1ab0O'],['일 인분','AL83WzY94ODeZ0Pg'],['시월, 남겨 두는 법','XGyBQbYRK86DaL6K'],['달력의 그늘','dMA1W8wgbO2vZ4OV'],['한 정거장 더','E1P8aXbjKx27ZwA9'],['시 쓰기','x5A7arDvABo4Zwr6'],['무제 1','yEPVZk7BOv3jZb0Y'],['무제 2','AL83WzY9oJP4Z0Pg'],['무제 3','LNV1Q7rgvznPamq3'],['무제 4','Ae2Rav0PE2bKZnz4'],['무제 5','E1P8aXbjK5rwZwA9']]},
+    watch:{label:'스탑워치',k:'STOPWATCH',note:'같은 한 줄 지시, 21개의 다른 세계관. 주식, GTA, 토이스토리, 퇴근까지.',sc:A+'showcase-stopwatch.html',sl:'강사 쇼케이스 ↗',items:[['주식 떡상 스탑워치','PR3NWxqXDLgNab0O'],['Random Facts','Xb8YaLMvN1O6Qyn1'],['말랑이 스톱워치','jpoxajzlOYwzabPE'],['GTA 스탑워치','Ae2Rav0PbkKKZnz4'],['Claude Code 테마','Ae2Rav0PbkkAZnz4'],['계기판 스톱워치','lDK1ZRzXe1gjZJ9z'],['하늘 스탑워치','LNV1Q7rgByboamq3'],['Runner Theme','wKmOZ52gw72VWzMA'],['토이스토리','do3MQJYyNdNka15w'],['최종합격 스탑워치','wKmOZ52gwKpVWzMA'],['투르비옹 크로노그래프','4b3zaM2bNXP6Q2j7'],['크로노 스탑워치','MbejW1Agwmp2WNkG'],['퇴근좀하자','0BA3Zpby9j8KanPb'],['점메추 스탑워치','wKmOZ52gpRlnWzMA'],['우주 미션 클락','PVKBQOrDzzEYaj5x'],['Baseball','e9YpQNndrqrVQxjM'],['스톱워치 1','goElQyA0zgA0Q3yY'],['스톱워치 2','mDRxWBDgNMwOQjb1'],['스톱워치 3','PVKBQOrDN18Maj5x'],['스톱워치 4','lDK1ZRzXejepZJ9z'],['스톱워치 5','1xkVaqd57dz2Wl0e']]},
+    news:{label:'뉴스 클리핑',k:'SKILL',note:'첫 Skill. 같은 지시로 출발해 구성이 모두 다른 18개 클리핑.',sc:A+'showcase-skills.html',sl:'강사 쇼케이스 ↗',items:[['AI News Clipping','BJkrQAdg67g6aEge'],['AI News Clipping','kxodWG9g0djDQgP7'],['AI News Clipping','NvylWEXgnv6MZ0OX'],['뉴스클리핑','lkROZPwPzb3vQjMg'],['AI 뉴스','9kmlZV5Ae0e0QpgV'],['AI News','XGyBQbYRr6znaL6K'],['News Clipping','pRxDZ4Mm4jj8W183'],['AI 뉴스 클리핑','Ae2Rav0Pyx5OZnz4'],['AI News Clipping','YBl3Z2YgM808Qv16'],['AI 뉴스 클리핑','XGyBQbYRr613aL6K'],['AI News','Ae2Rav0Pyx79Znz4'],['산업별 경제 클리핑','E1P8aXbjyq9yZwA9'],['AI News Clipping','e9YpQNndm5PXQxjM'],['AI news clipping','YDgnZe28n9VrWwrA'],['AI 뉴스 클리핑','e9YpQNndm6e1QxjM'],['AI News Clipping','PR3NWxqXvE5yab0O'],['AI News','4b3zaM2bLMDdQ2j7'],['Frutiger AI-ro Today','x5A7arDvNlgXZwr6']]},
+    enc:{label:'백과사전',k:'MULTI AGENT',note:'멀티 에이전트로 만든 14권. 반도체, 컨설팅부터 티니핑까지.',sc:'https://cat.airoasting.com/',sl:'강사 예제 ↗',items:[['컨설팅 백과사전','pRxDZ4Mml4boW183'],['반도체 백과사전','v3w8Zw96l3MEaN52'],['SDV 소프트웨어','e9YpQNndr3M8QxjM'],['부동산 백과사전','mlNDZ3eglAdyaznG'],['주식 백과사전','goElQyA08PwwQ3yY'],['인체 구조 백과사전','L8KjW9VgmNRlaJbv'],['한식 백과사전','pRxDZ4MmlYRNW183'],['막걸리','dMA1W8wgmdM1Z4OV'],['와인 (어린이용)','Ae2Rav0PB8nKZnz4'],['테니스 백과사전','PR3NWxqXV8Y3ab0O'],['MLB 백과사전','E1P8aXbjVy9qZwA9'],['공룡 백과사전','wKmOZ52gV5MrWzMA'],['포켓몬 백과사전','KxJvagrKVGjlWAg0'],['티니핑 백과사전','Xb8YaLMvLJ2BQyn1']]}
+  };
+  var tabs=el('tabs'),gal=el('gal');
+  function show(k){Array.prototype.forEach.call(tabs.children,function(b){b.setAttribute('aria-selected',b.dataset.k===k?'true':'false');});
+    var g=GL[k];el('galNote').textContent=g.note;el('galLink').href=g.sc;el('galLink').textContent=g.sl;
+    gal.innerHTML=g.items.map(function(it,i){return '<a class="gt" style="--acc:'+ACC[k]+'" href="'+PAD+it[1]+'" target="_blank" rel="noopener"><span class="gk"><span>'+g.k+'</span><b>'+String(i+1).padStart(2,'0')+'</b></span><span class="gtt">'+esc(it[0])+'</span><span class="go">패들렛에서 보기 ↗</span></a>';}).join('');
+    try{localStorage.setItem('axpb2-tab',k);}catch(e){}}
+  Object.keys(GL).forEach(function(k){var b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.dataset.k=k;b.id='tab-'+k;b.innerHTML=esc(GL[k].label)+'<b>'+GL[k].items.length+'</b>';b.addEventListener('click',function(){show(k);});tabs.appendChild(b);});
+  var st='poem';try{var sv=localStorage.getItem('axpb2-tab');if(sv&&GL[sv])st=sv;}catch(e){}
+  show(st);
+
+  // roster
+  var RS=[['회의, 인터뷰 정리',[['회의록 → 액션아이템','meeting-action-items','결정, 담당자와 기한, 미결 이슈를 분리하고 원문에 없으면 "미정"으로 둡니다.','환각 방지','박종필'],['인터뷰 노트 작성','interview-note','전사록을 주제별로 재구조화해 불참자도 바로 쓰는 노트로 만듭니다.','Black→Red→Blue','정경헌'],['인터뷰 시사점 장표화','kearney-interview-report','STT, 손그림 노트, RFP로 Kearney 스타일 보고서와 장표를 만듭니다.','멀티 에이전트','조서현'],['녹취록 → 슬랙 회의록','meeting-minutes','합의된 것만 의사결정으로 남기고 STT 오류를 보정합니다.','확정만 기록','한나현']]],
+    ['사례, 벤치마킹 조사',[['국내외 사례조사','case-research','국내 5, 해외 5 사례를 모으고 URL을 다시 열어 통과, 보류, 탈락을 판정합니다.','Black→Red→Blue','김지은'],['벤치마크 조사, 비교','benchmark-case-compiler','같은 축 비교 매트릭스를 만들고 칸마다 출처를 붙입니다.','9.5점 이상','안주영'],['이번 달 AI 트렌드 10선','ai-trend-research','원문의 날짜와 수치를 직접 확인해 카툰 스타일 HTML로 정리합니다.','5기준 채점','하현종']]],
+    ['시장, 솔루션 딥리서치',[['휴머노이드 로봇 시장','humanoid-robot-market','현황, 전망, 경쟁 구도 순으로 도표가 들어간 보고서를 냅니다.','기획→생성→평가','최수연'],['근거 기반 다중 관점 리서치','ax-research','여러 리뷰어가 통과시킬 때까지 반복하고 스크립트로 판정합니다.','리뷰 루프','장연우'],['솔루션 딥리서치와 도식','solution-deep-research','개요, FDE 플레이북, 고객 적용 도식, 퀴즈까지 담습니다.','6인 역할','김영민'],['개념 리서치 브리프','concept-research','낯선 용어를 10분 안에 설명하고 팀장 논의용 So-what을 붙입니다.','10항목 채점','김혜승']]],
+    ['개발, 업무 자동화',[['슬랙 → JIRA 티켓','jira-ticket','3줄 메모를 이슈 유형별 20줄 개발 요청 티켓으로 바꿉니다.','지어내지 않기','신현재'],['Deep Interview 워크플로','dev-workflow','계획, 리뷰, 코드, 코드 리뷰 단계별 승인과 독립 리뷰를 조율합니다.','4관점 리뷰','조광은']]]];
+  var n=0,h='<div class="rrow h"><span>No</span><span>Skill</span><span>하는 일</span><span>검증 장치</span><span style="text-align:right">만든 사람</span></div>';
+  RS.forEach(function(g){h+='<div class="rrow grp"><span>'+g[0]+', '+g[1].length+'</span></div>';g[1].forEach(function(s){n++;h+='<div class="rrow"><span class="no">'+String(n).padStart(2,'0')+'</span><span class="nm">'+esc(s[0])+'<small>'+s[1]+'</small></span><span class="ds">'+esc(s[2])+'</span><span class="gd">'+esc(s[3])+'</span><span class="who">'+s[4]+'</span></div>';});});
+  el('rosterT').innerHTML=h;
+
+  // teams + map
+  var T=[
+    [1,'카페','퇴계로 5가','HANJAN Coffee Seoul','외국인 카드 지출 약 6.5배','이윤희, 신현재','https://tzc75787cv-hub.github.io/kearney-hotspot-1-cafe/','1위',127.009,37.566,16,18],
+    [2,'카페','동묘','황학 디깅하우스','후보 17곳 중 1위, 82점','김영민, 박종필','https://nfgerjskngliesurghleirusj.github.io/kearney-hotspot-2-coffee_V2/','',127.017,37.574,14,-8],
+    [3,'카페','군자','군자 테이스팅 룸','점포당 월매출 2년 +38.2%','김기완, 김혜승','https://oscarkiwankim.github.io/seoul-specialty-coffee/','',127.080,37.558,13,-4],
+    [4,'카페','부암동','숲과 책이 있는 체류형 카페','동네 61곳 → 10곳 → 1순위','김다현, 하현종','https://darakroom-kr.github.io/stopwatch/seoul-hotplace.html','',126.963,37.593,13,4],
+    [5,'카페','효창, 청파','효창 워크업 로스터스','효창, 청파 89점 / 100','이서현, 정하영','https://yoojeongkim0721-collab.github.io/kearney-hotspot-5jo-coffee/','',126.963,37.545,-13,14],
+    [6,'카페','회현역','회현 로스터스','카페 결제 건수 3년 +121%','조선근','https://sk37025.github.io/kearney-hotspot-6-coffee/','',126.979,37.559,-13,-10],
+    [7,'베이커리','둔촌','둔촌 아침빵','1층 월세 평당 90 → 60만 원','인준수','https://junsuyoung96-lang.github.io/stopwatch/bakery/','3위',127.137,37.528,-14,18],
+    [8,'베이커리','문래예술촌','엠폰투 em ponto','진입적기 지수 84.5','김지은, 안주영','https://jek-wa.github.io/kearney-hotsopt-8-bakery/','2위',126.895,37.517,14,4],
+    [9,'베이커리','이문1동','이문 시그니처 라인','종합 점수 94점, 서울 2위','조서현, 정경헌, 백지웅','https://richardbaek1.github.io/firstanalysis/2030_%EB%B2%A0%EC%9D%B4%EC%BB%A4%EB%A6%AC_%EC%9E%85%EC%A7%80_%EB%B3%B4%EA%B3%A0%EC%84%9C.html','',127.062,37.598,13,4],
+    [10,'베이커리','화양동','BAKE AFTER 화양','20, 30대 밀도 서울 2위','조광은, 전미리, 최수연','https://kwangeuncho.github.io/kearney-hotspot-10-bakery/index-motion.html','',127.071,37.546,-13,17],
+    [11,'베이커리','천호3동','천호 소금빵 & 베이글','베이커리 매출 2배 (2024→2025)','장연우, 한나현','https://offthemenu.github.io/kearney-hotspot-11-bakery/','',127.125,37.541,-13,-12]
+  ];
+  el('teams').innerHTML='<div class="tr th"><span>조</span><span>제안 입지</span><span>매장 콘셉트</span><span>핵심 근거</span><span></span></div>'+T.map(function(t){return '<a class="tr" href="'+t[6]+'" target="_blank" rel="noopener"><span class="tn">'+String(t[0]).padStart(2,'0')+'</span><span class="tp"><b>'+esc(t[2])+'</b><small>'+t[1]+(t[7]?', '+t[7]:'')+'</small></span><span class="ts">'+esc(t[3])+'<small>'+esc(t[5])+'</small></span><span class="tx">'+esc(t[4])+'</span><span class="tg">보기 ↗</span></a>';}).join('');
+
+  // drills
+  var boxes=document.querySelectorAll('.drill input');
+  function lvName(c){return c>=8?'AX Native':c>=6?'Agent Hirer':c>=3?'Skill Builder':'AI User';}
+  function upd(){var c=0;boxes.forEach(function(b){if(b.checked)c++;});el('cnt').innerHTML=c+'<small>/'+boxes.length+'</small>';
+    el('sbar').querySelectorAll('i').forEach(function(x,i){x.classList.toggle('on',i<c);});el('lv').textContent=lvName(c);
+    document.querySelectorAll('.lvs span').forEach(function(sp){sp.innerHTML=c>=+sp.dataset.m?'<b>'+sp.textContent.replace(/<[^>]+>/g,'')+'</b>':sp.textContent;});}
+  boxes.forEach(function(b){try{b.checked=localStorage.getItem('axpb2-'+b.id)==='1';}catch(e){}b.addEventListener('change',function(){try{localStorage.setItem('axpb2-'+b.id,b.checked?'1':'0');}catch(e){}upd();});});
+  upd();
+
+  var links=document.querySelectorAll('#rail a'),secs=Array.prototype.map.call(links,function(a){return document.querySelector(a.getAttribute('href'));});
+  function onS(){var y=window.scrollY+120,i=-1;secs.forEach(function(sc,j){if(sc&&sc.offsetTop<=y)i=j;});links.forEach(function(a,j){a.classList.toggle('on',j===i);});}
+  window.addEventListener('scroll',onS,{passive:true});onS();
+})();
+</script>
+
+</body>
+</html>
